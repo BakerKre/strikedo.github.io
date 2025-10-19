@@ -4,6 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Strikedo</title>
+  <link rel="icon" href="favicon.ico" type="image/x-icon" />
 
   <!-- Google Fonts -->
   <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@500&family=Poppins:wght@400;600&display=swap" rel="stylesheet">
@@ -34,6 +35,17 @@
       overflow: hidden;
       position: relative;
       text-align: center;
+    }
+
+    /* Background Visualizer Canvas */
+    canvas {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: 0;
+      opacity: 0.15;
     }
 
     /* Background Logo */
@@ -115,9 +127,16 @@
     footer:hover {
       opacity: 0.8;
     }
+
+    /* Hidden Audio Player */
+    audio {
+      display: none;
+    }
   </style>
 </head>
 <body>
+  <canvas id="visualizer"></canvas>
+
   <header>
     <h1>STRIKEDO</h1>
     <p>i have no clue why i made this</p>
@@ -130,5 +149,54 @@
   </header>
 
   <footer>built by a noob. skibid</footer>
+
+  <!-- 🎵 Background Music -->
+  <audio id="music" src="song.mp3" autoplay loop></audio>
+
+  <script>
+    const audio = document.getElementById('music');
+    const canvas = document.getElementById('visualizer');
+    const ctx = canvas.getContext('2d');
+
+    let audioCtx, analyser, source, dataArray, bufferLength;
+
+    function resizeCanvas() {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+    }
+    resizeCanvas();
+    window.addEventListener('resize', resizeCanvas);
+
+    audio.addEventListener('play', () => {
+      if (!audioCtx) {
+        audioCtx = new AudioContext();
+        analyser = audioCtx.createAnalyser();
+        source = audioCtx.createMediaElementSource(audio);
+        source.connect(analyser);
+        analyser.connect(audioCtx.destination);
+        analyser.fftSize = 256;
+        bufferLength = analyser.frequencyBinCount;
+        dataArray = new Uint8Array(bufferLength);
+      }
+      animate();
+    });
+
+    function animate() {
+      requestAnimationFrame(animate);
+      analyser.getByteFrequencyData(dataArray);
+
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+      const barWidth = (canvas.width / bufferLength) * 2.5;
+      let x = 0;
+
+      for (let i = 0; i < bufferLength; i++) {
+        const barHeight = dataArray[i] * 1.5;
+        ctx.fillStyle = `rgba(139, 107, 79, ${barHeight / 300})`;
+        ctx.fillRect(x, canvas.height - barHeight, barWidth, barHeight);
+        x += barWidth + 1;
+      }
+    }
+  </script>
 </body>
 </html>

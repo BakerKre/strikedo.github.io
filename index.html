@@ -17,6 +17,15 @@
       --text-light: #b8a89a;
     }
 
+    /* Blue theme variables */
+    body.blue-theme {
+      --bg: #0e1a2a;
+      --accent: #4f9cff;
+      --text: #e2f0ff;
+      --text-light: #aac8ff;
+      background: linear-gradient(180deg, #0e1a2a 0%, #152a44 100%);
+    }
+
     * {
       margin: 0;
       padding: 0;
@@ -35,9 +44,10 @@
       overflow: hidden;
       position: relative;
       text-align: center;
+      transition: background 1s ease, color 1s ease;
     }
 
-    /* Background Visualizer Canvas */
+    /* Visualizer canvas */
     canvas {
       position: absolute;
       top: 0;
@@ -46,9 +56,10 @@
       height: 100%;
       z-index: 0;
       opacity: 0.15;
+      transition: opacity 1s ease;
     }
 
-    /* Background Logo */
+    /* Background logo */
     body::before {
       content: "";
       position: absolute;
@@ -62,6 +73,7 @@
       opacity: 0.05;
       z-index: 0;
       pointer-events: none;
+      transition: opacity 1s ease;
     }
 
     header {
@@ -74,15 +86,17 @@
       color: var(--accent);
       margin-bottom: 0.8rem;
       letter-spacing: 2px;
+      transition: color 1s ease;
     }
 
     header p {
       font-size: 1.1rem;
       color: var(--text-light);
       margin-bottom: 2.5rem;
+      transition: color 1s ease;
     }
 
-    /* 🌐 Socials Row */
+    /* Social links centered row */
     .socials {
       display: flex;
       justify-content: center;
@@ -101,7 +115,7 @@
       border-radius: 12px;
       font-family: "JetBrains Mono", monospace;
       font-size: 1rem;
-      transition: all 0.2s ease;
+      transition: all 0.4s ease;
     }
 
     .socials a:hover {
@@ -111,7 +125,6 @@
       transform: translateY(-2px);
     }
 
-    /* Bottom text */
     footer {
       position: fixed;
       bottom: 10px;
@@ -122,18 +135,17 @@
       opacity: 0.5;
       z-index: 2;
       font-family: "JetBrains Mono", monospace;
+      transition: color 1s ease, opacity 0.3s ease;
     }
 
     footer:hover {
       opacity: 0.8;
     }
 
-    /* Hidden Audio Player */
     audio {
       display: none;
     }
 
-    /* Play Button */
     #playButton {
       margin-top: 20px;
       background: transparent;
@@ -160,22 +172,21 @@
     <h1>STRIKEDO</h1>
     <p>i have no clue why i made this</p>
     <div class="socials">
-      <a href="https://www.roblox.com/share?code=7d6c22f471d0474a93d5fda734e52b45&type=Profile&source=ProfileShare&stamp=1760864293359" target="_blank">Roblox</a>
+      <a href="https://www.roblox.com/users/1010369250/profile" target="_blank">roblox</a>
     </div>
-    <button id="playButton">Play Music 🎵</button>
+    <button id="playButton">wat dis buton do??</button>
   </header>
 
   <footer>built by a noob. skibid</footer>
 
-  <!-- Background Music -->
-  <audio id="music" src="combine rap empire of steel.mp3" loop></audio>
+  <!-- No loop so we can detect when song ends -->
+  <audio id="music" src="combine rap empire of steel.mp3"></audio>
 
   <script>
     const audio = document.getElementById('music');
     const canvas = document.getElementById('visualizer');
     const ctx = canvas.getContext('2d');
     const playButton = document.getElementById('playButton');
-
     let audioCtx, analyser, source, dataArray, bufferLength;
 
     function resizeCanvas() {
@@ -199,7 +210,13 @@
 
       audio.play();
       playButton.style.display = 'none';
+      document.body.classList.add('blue-theme');
       animate();
+    });
+
+    audio.addEventListener('ended', () => {
+      playButton.style.display = 'inline-block';
+      document.body.classList.remove('blue-theme');
     });
 
     function animate() {
@@ -212,9 +229,13 @@
       const barWidth = (canvas.width / bufferLength) * 2.5;
       let x = 0;
 
+      // Change bar color dynamically based on theme
+      const isBlue = document.body.classList.contains('blue-theme');
+      const baseColor = isBlue ? 'rgba(79, 156, 255,' : 'rgba(139, 107, 79,';
+
       for (let i = 0; i < bufferLength; i++) {
         const barHeight = dataArray[i] * 1.5;
-        ctx.fillStyle = `rgba(139, 107, 79, ${barHeight / 300})`;
+        ctx.fillStyle = `${baseColor} ${barHeight / 300})`;
         ctx.fillRect(x, canvas.height - barHeight, barWidth, barHeight);
         x += barWidth + 1;
       }

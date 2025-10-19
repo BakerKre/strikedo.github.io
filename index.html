@@ -17,7 +17,6 @@
       --text-light: #b8a89a;
     }
 
-    /* Blue theme variables */
     body.blue-theme {
       --bg: #0e1a2a;
       --accent: #4f9cff;
@@ -47,7 +46,6 @@
       transition: background 1s ease, color 1s ease;
     }
 
-    /* Visualizer canvas */
     canvas {
       position: absolute;
       top: 0;
@@ -59,7 +57,6 @@
       transition: opacity 1s ease;
     }
 
-    /* Background logo */
     body::before {
       content: "";
       position: absolute;
@@ -94,9 +91,22 @@
       color: var(--text-light);
       margin-bottom: 2.5rem;
       transition: color 1s ease;
+      min-height: 1.5rem;
     }
 
-    /* Social links centered row */
+    /* Cursor effect */
+    .cursor {
+      display: inline-block;
+      width: 10px;
+      background: var(--accent);
+      margin-left: 2px;
+      animation: blink 0.9s infinite;
+    }
+
+    @keyframes blink {
+      50% { opacity: 0; }
+    }
+
     .socials {
       display: flex;
       justify-content: center;
@@ -142,9 +152,7 @@
       opacity: 0.8;
     }
 
-    audio {
-      display: none;
-    }
+    audio { display: none; }
 
     #playButton {
       margin-top: 20px;
@@ -170,19 +178,54 @@
 
   <header>
     <h1>STRIKEDO</h1>
-    <p>i have no clue why i made this</p>
+    <p id="changingText">welcome to mai site<span class="cursor"></span></p>
+
     <div class="socials">
       <a href="https://www.roblox.com/users/1010369250/profile" target="_blank">roblox</a>
     </div>
+
     <button id="playButton">wat dis buton do??</button>
   </header>
 
-  <footer>built by a noob. skibid</footer>
+  <footer>built by me, becuz i was bor</footer>
 
-  <!-- No loop so we can detect when song ends -->
   <audio id="music" src="combine rap empire of steel.mp3"></audio>
 
   <script>
+    const texts = [
+      "idk why i made this",
+      "i was bored lol",
+      "The FitnessGram™ Pacer Test is a multistage aerobic capacity test that progressive-",
+      "keep yourself safe",
+      "because i guarrantee you are not",
+      "you should clik that buton below boblox"
+    ];
+    const changingText = document.getElementById("changingText");
+    const cursor = document.querySelector(".cursor");
+
+    let textIndex = 0;
+    let charIndex = 0;
+    let deleting = false;
+
+    function type() {
+      const currentText = texts[textIndex];
+      if (!deleting && charIndex <= currentText.length) {
+        changingText.innerHTML = currentText.slice(0, charIndex++) + "<span class='cursor'></span>";
+        setTimeout(type, 70);
+      } else if (deleting && charIndex > 0) {
+        changingText.innerHTML = currentText.slice(0, charIndex--) + "<span class='cursor'></span>";
+        setTimeout(type, 40);
+      } else if (!deleting && charIndex > currentText.length) {
+        deleting = true;
+        setTimeout(type, 1200);
+      } else if (deleting && charIndex === 0) {
+        deleting = false;
+        textIndex = (textIndex + 1) % texts.length;
+        setTimeout(type, 300);
+      }
+    }
+    type();
+
     const audio = document.getElementById('music');
     const canvas = document.getElementById('visualizer');
     const ctx = canvas.getContext('2d');
@@ -229,7 +272,6 @@
       const barWidth = (canvas.width / bufferLength) * 2.5;
       let x = 0;
 
-      // Change bar color dynamically based on theme
       const isBlue = document.body.classList.contains('blue-theme');
       const baseColor = isBlue ? 'rgba(79, 156, 255,' : 'rgba(139, 107, 79,';
 

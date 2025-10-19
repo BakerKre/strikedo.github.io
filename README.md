@@ -1,2 +1,2 @@
-#strikedo site thingy
+# strikedo site thingy
 OYU ARE NOOB

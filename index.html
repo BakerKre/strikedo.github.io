@@ -57,14 +57,48 @@
       transition: opacity 1s ease;
     }
 
+    /* Explosion effect */
+    .explosion {
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      width: 20px;
+      height: 20px;
+      background: white;
+      transform: translate(-50%, -50%) scale(0);
+      z-index: 10;
+      opacity: 0;
+      image-rendering: pixelated;
+      pointer-events: none;
+    }
+
+    .explosion.active {
+      animation: explode 0.6s steps(4) forwards;
+    }
+
+    @keyframes explode {
+      0% {
+        transform: translate(-50%, -50%) scale(0);
+        opacity: 1;
+      }
+      50% {
+        transform: translate(-50%, -50%) scale(8);
+        opacity: 0.8;
+      }
+      100% {
+        transform: translate(-50%, -50%) scale(12);
+        opacity: 0;
+      }
+    }
+
     body::before {
       content: "";
       position: absolute;
       top: 50%;
       left: 50%;
       transform: translate(-50%, -50%);
-      width: 500px;
-      height: 500px;
+      width: 400px;
+      height: 400px;
       background: url("logo.png") no-repeat center center;
       background-size: contain;
       opacity: 0.05;
@@ -75,11 +109,12 @@
 
     header {
       z-index: 1;
+      padding: 0 20px;
     }
 
     header h1 {
       font-family: "JetBrains Mono", monospace;
-      font-size: 3rem;
+      font-size: 2.5rem;
       color: var(--accent);
       margin-bottom: 0.8rem;
       letter-spacing: 2px;
@@ -89,12 +124,12 @@
     header p {
       font-size: 1.1rem;
       color: var(--text-light);
-      margin-bottom: 2.5rem;
+      margin-bottom: 2rem;
       transition: color 1s ease;
       min-height: 1.5rem;
     }
 
-    /* Cursor effect */
+    /* Cursor */
     .cursor {
       display: inline-block;
       width: 10px;
@@ -103,9 +138,7 @@
       animation: blink 0.9s infinite;
     }
 
-    @keyframes blink {
-      50% { opacity: 0; }
-    }
+    @keyframes blink { 50% { opacity: 0; } }
 
     .socials {
       display: flex;
@@ -148,9 +181,7 @@
       transition: color 1s ease, opacity 0.3s ease;
     }
 
-    footer:hover {
-      opacity: 0.8;
-    }
+    footer:hover { opacity: 0.8; }
 
     audio { display: none; }
 
@@ -171,10 +202,17 @@
       background: var(--accent);
       color: var(--bg);
     }
+
+    /* Mobile tweaks */
+    @media (max-width: 600px) {
+      header h1 { font-size: 2rem; }
+      .socials a { padding: 0.6rem 1.2rem; font-size: 0.9rem; }
+    }
   </style>
 </head>
 <body>
   <canvas id="visualizer"></canvas>
+  <div class="explosion" id="explosion"></div>
 
   <header>
     <h1>STRIKEDO</h1>
@@ -182,6 +220,7 @@
 
     <div class="socials">
       <a href="https://www.roblox.com/users/1010369250/profile" target="_blank">roblox</a>
+      <a href="https://github.com/strikedo" target="_blank">github</a>
     </div>
 
     <button id="playButton">wat dis buton do??</button>
@@ -204,9 +243,7 @@
     const changingText = document.getElementById("changingText");
     const cursor = document.querySelector(".cursor");
 
-    let textIndex = 0;
-    let charIndex = 0;
-    let deleting = false;
+    let textIndex = 0, charIndex = 0, deleting = false;
 
     function type() {
       const currentText = texts[textIndex];
@@ -231,6 +268,7 @@
     const canvas = document.getElementById('visualizer');
     const ctx = canvas.getContext('2d');
     const playButton = document.getElementById('playButton');
+    const explosion = document.getElementById('explosion');
     let audioCtx, analyser, source, dataArray, bufferLength;
 
     function resizeCanvas() {
@@ -240,7 +278,15 @@
     resizeCanvas();
     window.addEventListener('resize', resizeCanvas);
 
+    function triggerExplosion() {
+      explosion.classList.remove('active');
+      void explosion.offsetWidth; // restart animation
+      explosion.classList.add('active');
+    }
+
     playButton.addEventListener('click', () => {
+      triggerExplosion();
+
       if (!audioCtx) {
         audioCtx = new (window.AudioContext || window.webkitAudioContext)();
         analyser = audioCtx.createAnalyser();
@@ -259,6 +305,7 @@
     });
 
     audio.addEventListener('ended', () => {
+      triggerExplosion();
       playButton.style.display = 'inline-block';
       document.body.classList.remove('blue-theme');
     });
@@ -272,7 +319,6 @@
 
       const barWidth = (canvas.width / bufferLength) * 2.5;
       let x = 0;
-
       const isBlue = document.body.classList.contains('blue-theme');
       const baseColor = isBlue ? 'rgba(79, 156, 255,' : 'rgba(139, 107, 79,';
 
